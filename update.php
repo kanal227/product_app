@@ -8,8 +8,13 @@ if (isset($_POST['submit'])) {
     $pdo = new PDO($dsn, $user, $password);
 
     $sql = '
-    INSERT INTO users (name, furigana, email, age, address)
-    VALUES (:name, :furigana, :email, :age, :address)
+    UPDATE users
+    SET name = :name,
+    furigana = :furigana,
+    email = :email,
+    age = :age,
+    address = :address
+    WHERE id = :id
     ';
     $stmt = $pdo->prepare($sql);
 
@@ -18,10 +23,11 @@ if (isset($_POST['submit'])) {
     $stmt->bindValue(':email', $_POST['user_email'], PDO::PARAM_STR);
     $stmt->bindValue(':age', $_POST['user_age'], PDO::PARAM_INT);
     $stmt->bindValue(':address', $_POST['user_address'],PDO::PARAM_STR);
+    $stmt->bindValue(':id', $_GET['id'],PDO::PARAM_INT);
 
     $stmt->execute();
 
-    header('Location: select.php');
+    header('Location: users.php');
   } catch (PDOException $e) {
       exit($e->getMessage());
   }
@@ -62,7 +68,7 @@ if (isset($_GET['id'])) {
 <body>
   <h1>ユーザー更新</h1>
   <p>更新する内容を入力してください。</p>
-  <form action="update.php" method="post">
+  <form action="update.php?id=<?= $_GET['id'] ?>" method="post">
     <div>
       <label for="user_name">お名前<span>【必須】</span></label>
       <input type="text" id="user_name" name="user_name" value="<?= $user['name'] ?>" maxlength="60" required>
